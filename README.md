@@ -33,7 +33,8 @@ The repository includes Azure setup and execution screenshots in the [Screenshot
 6. **Transform valid records** — casts `Price` to double and `Quantity` to integer; derives `Revenue = Price × Quantity` and date parts when the transaction-date column is present.
 7. **Write and read back outputs** — keeps the existing `cleaned/ecommerce_cleaned` path for the SQL scripts and checks the saved row count, expected columns, and revenue arithmetic.
 8. **Publish quality metrics** — writes a run-level CSV summary to `quality/ecommerce_sales`; rejected data is separated by run ID under `rejected/ecommerce_sales`.
-9. **Query for insights** — SQL scripts preview the cleaned output and summarize records, revenue by region/category, and top products.
+9. **Run independent SQL checks** — `Code/sql_data_quality_validation.sql` checks required dimensions, numeric conversions, revenue consistency, and negative values from persisted Parquet.
+10. **Query for insights** — SQL scripts preview the cleaned output and summarize records, revenue by region/category, and top products.
 
 **Data-quality note:** Negative prices and quantities are reported for review rather than automatically rejected because returns or credits may be legitimate. The notebook's report shows counts by reason; the code is committed but must still be run in your Synapse environment to verify it against the actual source data. See the [Data Quality and Validation Report](Documentation/Step_10_Data_Quality_and_Validation.md) for the checks, output paths, and operational checklist.
 
@@ -47,7 +48,8 @@ The repository includes Azure setup and execution screenshots in the [Screenshot
 ├── Code/
 │   ├── ecommerce_data_cleaning.ipynb
 │   ├── external_data_source_setup.sql
-│   └── sql_analytics.sql
+│   ├── sql_analytics.sql
+│   └── sql_data_quality_validation.sql
 ├── Documentation/
 │   ├── Step_1_Project_Documentation.docx
 │   ├── Step_2_Architecture_Diagram.png
@@ -64,6 +66,7 @@ The repository includes Azure setup and execution screenshots in the [Screenshot
 - [PySpark cleaning notebook](Code/ecommerce_data_cleaning.ipynb)
 - [External data source and view setup](Code/external_data_source_setup.sql)
 - [SQL analytics examples](Code/sql_analytics.sql)
+- [SQL data-quality validation checks](Code/sql_data_quality_validation.sql)
 - [Architecture diagram](Documentation/Step_2_Architecture_Diagram.png)
 - [Project documentation](Documentation/Step_1_Project_Documentation.docx)
 - [Submission checklist and scope notes](Documentation/Step_9_Submission_Checklist.md)
@@ -130,7 +133,7 @@ Use this checklist after an execution:
 - [ ] Run each analytics query and inspect the result set.
 - [ ] Verify that access is granted through appropriate permissions and no credentials are committed.
 
-The notebook now runs automated record/schema checks and a post-write Parquet readback check, and writes the latest quality summary to `quality/ecommerce_sales`. The SQL analytics queries still need to be run and reviewed separately; no fresh Azure execution is claimed by these repository changes.
+The notebook now runs automated record/schema checks and a post-write Parquet readback check, and writes the latest quality summary to `quality/ecommerce_sales`. The SQL analytics and independent SQL quality checks still need to be run and reviewed separately in Synapse; no fresh Azure execution is claimed by these repository changes.
 
 ## Screenshots
 
