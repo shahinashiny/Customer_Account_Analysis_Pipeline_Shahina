@@ -41,6 +41,9 @@ The repository includes Azure setup and execution screenshots in the [Screenshot
 
 ```text
 .
+├── .github/
+│   └── workflows/
+│       └── notebook-validation.yml
 ├── Code/
 │   ├── ecommerce_data_cleaning.ipynb
 │   ├── external_data_source_setup.sql
@@ -65,6 +68,7 @@ The repository includes Azure setup and execution screenshots in the [Screenshot
 - [Project documentation](Documentation/Step_1_Project_Documentation.docx)
 - [Submission checklist and scope notes](Documentation/Step_9_Submission_Checklist.md)
 - [Data quality and validation report](Documentation/Step_10_Data_Quality_and_Validation.md)
+- [Notebook syntax and structure CI workflow](.github/workflows/notebook-validation.yml)
 
 ## Prerequisites
 
