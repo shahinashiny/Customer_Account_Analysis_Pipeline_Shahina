@@ -75,8 +75,27 @@ jobs:
                   "Expected data-quality controls are missing: " + ", ".join(missing)
               )
 
+          sql_path = Path("Code/sql_data_quality_validation.sql")
+          sql_text = sql_path.read_text(encoding="utf-8")
+          required_sql_checks = [
+              "cleaned/ecommerce_cleaned/**",
+              "DATA_SOURCE = 'EcommerceLake'",
+              "missing_region",
+              "missing_category",
+              "missing_product",
+              "invalid_price_or_quantity",
+              "revenue_calculation_mismatch",
+              "negative_price_review",
+              "negative_quantity_review",
+          ]
+          missing_sql = [check for check in required_sql_checks if check not in sql_text]
+          if missing_sql:
+              raise SystemExit(
+                  "Expected SQL quality checks are missing: " + ", ".join(missing_sql)
+              )
+
           print(
               f"Notebook JSON is valid; compiled {len(code_cells)} code cell(s); "
-              "required data-quality controls are present."
+              "notebook and SQL quality controls are present."
           )
           PY
