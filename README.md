@@ -34,7 +34,7 @@ The repository includes Azure setup and execution screenshots in the [Screenshot
 7. **Write cleaned data** — writes Parquet files to the configured `cleaned/ecommerce_cleaned` output path.
 8. **Query for insights** — SQL scripts preview the output and summarize total records, revenue by region and category, and top products.
 
-**Data-quality note:** The current notebook removes rows with any null value and removes exact duplicate rows. For production use, consider adding explicit required-column checks, rejected-row reporting, schema enforcement, and before/after quality metrics.
+**Data-quality note:** The current notebook removes rows with any null value and removes exact duplicate rows. For production use, consider adding explicit required-column checks, rejected-row reporting, schema enforcement, and before/after quality metrics. See the [Data Quality and Validation Report](Documentation/Step_10_Data_Quality_and_Validation.md) for the current behavior, gaps, and a repeatable validation checklist.
 
 ## Repository structure
 
@@ -47,7 +47,8 @@ The repository includes Azure setup and execution screenshots in the [Screenshot
 ├── Documentation/
 │   ├── Step_1_Project_Documentation.docx
 │   ├── Step_2_Architecture_Diagram.png
-│   └── Step_9_Submission_Checklist.md
+│   ├── Step_9_Submission_Checklist.md
+│   └── Step_10_Data_Quality_and_Validation.md
 ├── Screenshots/
 │   ├── Azure Storage account and container setup
 │   ├── ADF pipeline and successful debug run
@@ -62,6 +63,7 @@ The repository includes Azure setup and execution screenshots in the [Screenshot
 - [Architecture diagram](Documentation/Step_2_Architecture_Diagram.png)
 - [Project documentation](Documentation/Step_1_Project_Documentation.docx)
 - [Submission checklist and scope notes](Documentation/Step_9_Submission_Checklist.md)
+- [Data quality and validation report](Documentation/Step_10_Data_Quality_and_Validation.md)
 
 ## Prerequisites
 
