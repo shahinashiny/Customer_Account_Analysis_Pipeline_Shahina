@@ -25,16 +25,17 @@ The repository includes Azure setup and execution screenshots in the [Screenshot
 
 ## Data workflow
 
-1. **Read source files** — the notebook reads CSV files from the configured ADLS Gen2 path.
-2. **Remove duplicate rows** — applies PySpark `dropDuplicates()`.
-3. **Handle missing values** — applies `dropna()`, which drops a row if any column is null.
-4. **Standardize dates** — when `Transaction Date` is present, creates `Transaction_Date`, `Transaction_Month`, and `Transaction_Year`.
-5. **Cast numeric fields** — when present, casts `Price` to double and `Quantity` to integer.
-6. **Derive revenue** — when both fields exist, creates `Revenue = Price × Quantity`.
-7. **Write cleaned data** — writes Parquet files to the configured `cleaned/ecommerce_cleaned` output path.
-8. **Query for insights** — SQL scripts preview the output and summarize total records, revenue by region and category, and top products.
+1. **Read source files** — reads CSV values as strings so malformed numeric values can be identified before casting.
+2. **Validate required columns** — checks for `Price`, `Quantity`, `Region`, `Category`, and `Product`; the notebook stops with a clear error if one is missing.
+3. **Track exact duplicates** — identifies excess full-row duplicates and writes them with `_DQ_REASONS=EXACT_DUPLICATE` to a run-specific reject folder.
+4. **Validate records** — flags missing required values, invalid numeric casts, missing/invalid transaction dates when the date column is present, and non-finite revenue calculations.
+5. **Keep rejected records auditable** — writes rejected records and their `_DQ_REASONS` to a run-specific ADLS Gen2 folder instead of silently discarding them.
+6. **Transform valid records** — casts `Price` to double and `Quantity` to integer; derives `Revenue = Price × Quantity` and date parts when the transaction-date column is present.
+7. **Write and read back outputs** — keeps the existing `cleaned/ecommerce_cleaned` path for the SQL scripts and checks the saved row count, expected columns, and revenue arithmetic.
+8. **Publish quality metrics** — writes a run-level CSV summary to `quality/ecommerce_sales`; rejected data is separated by run ID under `rejected/ecommerce_sales`.
+9. **Query for insights** — SQL scripts preview the cleaned output and summarize records, revenue by region/category, and top products.
 
-**Data-quality note:** The current notebook removes rows with any null value and removes exact duplicate rows. For production use, consider adding explicit required-column checks, rejected-row reporting, schema enforcement, and before/after quality metrics. See the [Data Quality and Validation Report](Documentation/Step_10_Data_Quality_and_Validation.md) for the current behavior, gaps, and a repeatable validation checklist.
+**Data-quality note:** Negative prices and quantities are reported for review rather than automatically rejected because returns or credits may be legitimate. The notebook's report shows counts by reason; the code is committed but must still be run in your Synapse environment to verify it against the actual source data. See the [Data Quality and Validation Report](Documentation/Step_10_Data_Quality_and_Validation.md) for the checks, output paths, and operational checklist.
 
 ## Repository structure
 
@@ -125,7 +126,7 @@ Use this checklist after an execution:
 - [ ] Run each analytics query and inspect the result set.
 - [ ] Verify that access is granted through appropriate permissions and no credentials are committed.
 
-These are recommended manual validation steps; the repository does not currently include a separate automated test suite.
+The notebook now runs automated record/schema checks and a post-write Parquet readback check, and writes the latest quality summary to `quality/ecommerce_sales`. The SQL analytics queries still need to be run and reviewed separately; no fresh Azure execution is claimed by these repository changes.
 
 ## Screenshots
 
