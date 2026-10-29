@@ -1,0 +1,82 @@
+name: Notebook Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-notebook:
+    name: Validate Synapse notebook structure and Python syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Validate notebook JSON and compile code cells
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          notebook_path = Path("Code/ecommerce_data_cleaning.ipynb")
+          notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+
+          if notebook.get("nbformat") != 4:
+              raise SystemExit("Expected a Jupyter notebook in nbformat 4.")
+
+          code_cells = [
+              (index, cell)
+              for index, cell in enumerate(notebook.get("cells", []), start=1)
+              if cell.get("cell_type") == "code"
+          ]
+          if not code_cells:
+              raise SystemExit("Notebook contains no Python code cells.")
+
+          for index, cell in code_cells:
+              source = cell.get("source", "")
+              if isinstance(source, list):
+                  source = "".join(source)
+              compile(source, f"{notebook_path} cell {index}", "exec")
+
+          all_code = "\n".join(
+              "".join(cell.get("source", []))
+              if isinstance(cell.get("source", []), list)
+              else cell.get("source", "")
+              for _, cell in code_cells
+          )
+
+          required_controls = [
+              "required_columns",
+              "dropDuplicates",
+              "INVALID_PRICE",
+              "INVALID_QUANTITY",
+              "INVALID_TRANSACTION_DATE",
+              "INVALID_REVENUE",
+              "_DQ_REASONS",
+              "quality_report_path",
+              "revenue_readback_issue_rows",
+          ]
+          missing = [control for control in required_controls if control not in all_code]
+          if missing:
+              raise SystemExit(
+                  "Expected data-quality controls are missing: " + ", ".join(missing)
+              )
+
+          print(
+              f"Notebook JSON is valid; compiled {len(code_cells)} code cell(s); "
+              "required data-quality controls are present."
+          )
+          PY
