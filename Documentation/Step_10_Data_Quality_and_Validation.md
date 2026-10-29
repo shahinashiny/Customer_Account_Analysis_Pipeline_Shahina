@@ -23,6 +23,14 @@ The notebook reads CSV fields as strings to make invalid numeric values detectab
 | Negative values | Counts negative prices and quantities among otherwise accepted records. | Emits `REVIEW` metrics but does not automatically reject them because refunds, credits, and returns can legitimately produce negatives. |
 | Output readback | Reads the written cleaned Parquet data back from the same path used by the SQL scripts. | Reports output row count and checks expected analytics columns and saved revenue against `Price × Quantity`. A failed readback check raises an error after the quality report is written. |
 
+## Independent SQL validation
+
+After the notebook has completed and written the cleaned Parquet output, run [`Code/sql_data_quality_validation.sql`](../Code/sql_data_quality_validation.sql) in the configured Synapse Serverless SQL database. This script independently checks persisted data rather than relying only on notebook variables.
+
+The SQL result includes the output row count, missing Region/Category/Product values, Price/Quantity numeric readability, missing/invalid Revenue, stored-versus-recalculated revenue mismatch, and negative price/quantity review counts. A second query summarizes output count and stored versus recalculated revenue.
+
+Interpret `FAIL` rows as checks requiring investigation. `REVIEW` is an exception signal for negative values, not an automatic data rejection. The script requires the expected output columns and configured external data source to exist. It is checked into GitHub, but it has not been executed against your Synapse workspace as part of these repository changes.
+
 ## Output locations
 
 The paths are configured near the top of `Code/ecommerce_data_cleaning.ipynb`. Replace the sample account/container paths with those from your environment before executing the notebook.
@@ -63,4 +71,5 @@ The CSV summary includes the run ID, check name, status, count, and details. Rea
 - [PySpark cleaning notebook](../Code/ecommerce_data_cleaning.ipynb)
 - [External data source and view setup](../Code/external_data_source_setup.sql)
 - [Serverless SQL analytics](../Code/sql_analytics.sql)
+- [SQL data-quality validation checks](../Code/sql_data_quality_validation.sql)
 - [Project README](../README.md)
